@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专家抽取系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"> 
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+ 
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            z-index: -1;
+        }
+ 
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+ 
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            z-index: 1;
+        }
+ 
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+        }
+ 
+        .lottery-display {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+ 
+        .display-text {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+ 
+        .control-panel {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+ 
+        .btn {
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+ 
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+ 
+        .btn-primary {
+            background-color: #4e73df;
+        }
+ 
+        .btn-success {
+            background-color: #1cc88a;
+        }
+ 
+        .btn-danger {
+            background-color: #e74a3b;
+        }
+ 
+        .btn-warning {
+            background-color: #f6c23e;
+        }
+ 
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            border-radius: 50px;
+            padding: 12px 20px;
+        }
+ 
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+        }
+ 
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+ 
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+ 
+        .winner {
+            color: #f8d800;
+            animation: pulse 0.5s infinite alternate;
+            font-size: 2.5rem;
+        }
+        
+        .winner-name {
+            font-size: 2rem;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+ 
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+ 
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .display-text {
+                font-size: 2.5rem;
+            }
+            
+            .lottery-display {
+                min-height: 200px;
+                padding: 20px;
+            }
+            
+            .winner {
+                font-size: 1.8rem;
+            }
+            
+            .winner-name {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div class="container">
+        <h1 class="text-center mb-4 animate__animated animate__fadeInDown">专家抽取系统</h1>
+        
+        <div class="lottery-display animate__animated animate__fadeIn">
+            <div id="nameDisplay" class="display-text">等待抽取开始...</div>
+        </div>
+        
+        <div class="control-panel animate__animated animate__fadeInUp">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <input type="text" id="nameInput" class="form-control" placeholder="输入姓名">
+                        <button id="addNameBtn" class="btn btn-primary">添加</button>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="durationInput" class="form-label">抽取时间(秒)</label>
+                            <input type="number" id="durationInput" class="form-control" value="5" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="winnerCount" class="form-label">抽中人数</label>
+                            <input type="number" id="winnerCount" class="form-control" value="1" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fileInput" class="form-label">导入Excel</label>
+                            <input type="file" id="fileInput" class="form-control" accept=".xlsx, .xls">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center mt-4">
+                        <button id="startBtn" class="btn btn-success me-3">开始抽取</button>
+                        <button id="resetBtn" class="btn btn-danger">重置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script> 
+    <script>
+        document.addEventListener('DOMContentLoaded',  function() {
+            // 初始化变量 
+            let names = [];
+            let isRunning = false;
+            let timer = null;
+            let slowdownTimer = null;
+            let winners = [];
+            let startTime;
+            let duration = 5;
+            
+            // DOM元素 
+            const nameInput = document.getElementById('nameInput'); 
+            const addNameBtn = document.getElementById('addNameBtn'); 
+            const startBtn = document.getElementById('startBtn'); 
+            const resetBtn = document.getElementById('resetBtn'); 
+            const nameDisplay = document.getElementById('nameDisplay'); 
+            const durationInput = document.getElementById('durationInput'); 
+            const winnerCountInput = document.getElementById('winnerCount'); 
+            const fileInput = document.getElementById('fileInput'); 
+            
+            // 添加姓名 
+            addNameBtn.addEventListener('click',  function() {
+                const name = nameInput.value.trim(); 
+                if (name) {
+                    names.push(name); 
+                    nameInput.value  = '';
+                    updateDisplay(`已添加: ${name}`);
+                    setTimeout(() => updateDisplay('等待抽取开始...'), 1500);
+                }
+            });
+            
+            // 开始抽取 
+            startBtn.addEventListener('click',  function() {
+                if (isRunning) {
+                    stopLottery();
+                    return;
+                }
+                
+                if (names.length  === 0) {
+                    updateDisplay('请先添加参与者');
+                    return;
+                }
+                
+                const winnerCount = Math.min( 
+                    parseInt(winnerCountInput.value)  || 1,
+                    names.length  
+                );
+                
+                startLottery(winnerCount);
+            });
+            
+            // 重置 
+            resetBtn.addEventListener('click',  function() {
+                stopAllTimers();
+                names = [];
+                winners = [];
+                fileInput.value  = '';
+                updateDisplay('已重置，等待抽取开始...');
+            });
+            
+            // 停止所有定时器 
+            function stopAllTimers() {
+                cancelAnimationFrame(timer);
+                clearTimeout(slowdownTimer);
+                isRunning = false;
+                startBtn.textContent  = '开始抽取';
+                startBtn.classList.remove('btn-warning'); 
+                startBtn.classList.add('btn-success'); 
+            }
+            
+            // 导入Excel文件 
+            fileInput.addEventListener('change',  function(e) {
+                const file = e.target.files[0]; 
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload  = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result); 
+                        const workbook = XLSX.read(data,  { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet); 
+                        
+                        names = jsonData.map(row  => {
+                            const key = Object.keys(row).find(k  => row[k] && row[k].toString().trim());
+                            return key ? row[key].toString().trim() : null;
+                        }).filter(name => name);
+                        
+                        updateDisplay(`已导入 ${names.length}  个姓名`);
+                        setTimeout(() => updateDisplay('等待抽取开始...'), 2000);
+                    } catch (error) {
+                        updateDisplay('文件解析失败');
+                        console.error(error); 
+                    }
+                };
+                reader.readAsArrayBuffer(file); 
+            });
+            
+            // 开始抽取（修复版）
+            function startLottery(winnerCount) {
+                stopAllTimers();
+                
+                isRunning = true;
+                winners = [];
+                startTime = Date.now(); 
+                duration = parseInt(durationInput.value)  || 5;
+                startBtn.textContent  = '停止抽取';
+                startBtn.classList.remove('btn-success'); 
+                startBtn.classList.add('btn-warning'); 
+                
+                let candidates = [...names];
+                let lastDisplayTime = 0;
+                
+                // 主抽取循环 
+                const runLottery = () => {
+                    const now = Date.now(); 
+                    const elapsed = now - startTime;
+                    const remaining = duration * 1000 - elapsed;
+                    
+                    // 时间到，停止抽取 
+                    if (remaining <= 0) {
+                        stopAllTimers();
+                        selectWinners(winnerCount, candidates);
+                        return;
+                    }
+                    
+                    // 计算当前速度 
+                    const progress = elapsed / (duration * 1000);
+                    let speed;
+                    
+                    if (progress < 0.7) {
+                        // 加速阶段 (前70%时间)
+                        speed = 100 - (progress * 80);
+                    } else if (progress < 0.9) {
+                        // 过渡阶段 (70%-90%)
+                        speed = 100 + (progress * 100);
+                    } else {
+                        // 减速阶段 (最后10%)
+                        speed = 300;
+                    }
+                    
+                    // 确保最小间隔时间 
+                    speed = Math.max(speed,  30);
+                    
+                    // 显示随机名字 
+                    if (now - lastDisplayTime >= speed) {
+                        const randomIndex = Math.floor(Math.random()  * candidates.length); 
+                        nameDisplay.textContent  = candidates[randomIndex];
+                        nameDisplay.classList.add('animate__animated',  'animate__pulse');
+                        lastDisplayTime = now;
+                    }
+                    
+                    // 在减速阶段设置最终停止 
+                    if (progress >= 0.9 && !slowdownTimer) {
+                        slowdownTimer = setTimeout(() => {
+                            stopAllTimers();
+                            selectWinners(winnerCount, candidates);
+                        }, remaining);
+                    }
+                    
+                    // 继续循环 
+                    if (isRunning) {
+                        timer = requestAnimationFrame(runLottery);
+                    }
+                };
+                
+                timer = requestAnimationFrame(runLottery);
+            }
+            
+            // 选择专家
+            function selectWinners(count, candidates) {
+                // 打乱数组并选取前N个 
+                winners = [...candidates]
+                    .sort(() => Math.random()  - 0.5)
+                    .slice(0, count);
+                
+                displayWinners();
+            }
+            
+            // 显示抽中专家
+            function displayWinners() {
+                nameDisplay.innerHTML  = '';
+                nameDisplay.classList.add('winner'); 
+                
+                if (winners.length  === 1) {
+                    nameDisplay.innerHTML  = `
+                        <div>抽中专家</div>
+                        <div class="winner-name">${winners[0]}</div>
+                    `;
+                } else {
+                    const winnerList = winners.map((winner,  index) => 
+                        `<div class="winner-name">${index + 1}. ${winner}</div>`
+                    ).join('');
+                    nameDisplay.innerHTML  = ` 
+                        <div>专家名单</div>
+                        ${winnerList}
+                    `;
+                }
+            }
+            
+            // 更新显示 
+            function updateDisplay(text) {
+                nameDisplay.textContent  = text;
+                nameDisplay.classList.remove('winner',  'animate__animated', 'animate__pulse');
+            }
+            
+            // 键盘事件 
+            document.addEventListener('keydown',  function(e) {
+                if (e.key  === 'Enter' && nameInput === document.activeElement)  {
+                    addNameBtn.click(); 
+                    nameInput.focus(); 
+                }
+            });
+        });
+    </script>
+</body>
+</html>
